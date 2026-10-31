@@ -31,7 +31,12 @@ jobs:
             .
       
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          pwd
+          ls -la
+          flutter pub get
+          flutter pub deps
+          
 
   
      
