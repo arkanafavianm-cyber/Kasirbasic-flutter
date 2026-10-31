@@ -22,24 +22,20 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Create Flutter project structure
+      - name: Create Android project structure
         run: |
           flutter create \
             --platforms=android \
             --project-name kasirbasic \
             --org com.kasirbasic \
-            .
-      
-      - name: Install dependencies
-        run: |
-          pwd
-          ls -la
-          flutter pub get
-          flutter pub deps
-          flutter pub get --offline
+            /tmp/kasir_scaffold
+          cp -R /tmp/kasir_scaffold/android ./android
 
-  
-     
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify dependencies
+        run: flutter pub deps
 
       - name: Build release APK
         run: flutter build apk --release
