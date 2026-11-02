@@ -253,11 +253,25 @@ class _DashboardPageState extends State<DashboardPage> {
         child: ListView(
           padding: const EdgeInsets.all(18),
           children: [
-            const Text('Selamat Datang!',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            const Text('Kelola penjualan tokomu dengan mudah.'),
-            const SizedBox(height: 20),
+  Center(
+    child: Image.asset(
+      'assets/images/logo.png',
+      width: 110,
+      height: 110,
+      fit: BoxFit.contain,
+    ),
+  ),
+  const SizedBox(height: 12),
+  const Text(
+    'Selamat Datang!',
+    style: TextStyle(
+      fontSize: 26,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+  const SizedBox(height: 6),
+  const Text('Kelola penjualan tokomu dengan mudah.'),
+  const SizedBox(height: 20),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
