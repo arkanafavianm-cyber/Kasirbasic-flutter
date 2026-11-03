@@ -232,6 +232,278 @@ class _DashboardPageState extends State<DashboardPage> {
   int todaySales = 0;
   int todayTransactions = 0;
   bool loading = true;
+  static const Color brand = Color(0xFF087653);
+  static const Color ink = Color(0xFF17231E);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSummary();
+  }
+
+  Future<void> _loadSummary() async {
+    final transactions = await LocalStore.loadTransactions();
+    final now = DateTime.now();
+    final today = transactions.where((t) => sameDay(t.date, now)).toList();
+    if (!mounted) return;
+    setState(() {
+      todaySales = today.fold(0, (sum, t) => sum + t.total);
+      todayTransactions = today.length;
+      loading = false;
+    });
+  }
+
+  Future<void> _open(Widget page) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    _loadSummary();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        titleSpacing: 20,
+        title: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: brand,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.point_of_sale, color: Colors.white),
+            ),
+            const SizedBox(width: 11),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('KasirBasic',
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
+                Text('POINT OF SALE',
+                    style: TextStyle(
+                      fontSize: 9,
+                      letterSpacing: 1.5,
+                      color: Colors.black45,
+                      fontWeight: FontWeight.w700,
+                    )),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            tooltip: 'Muat ulang',
+            onPressed: _loadSummary,
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: _loadSummary,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
+          children: [
+            const Text('Ringkasan toko',
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800, color: ink)),
+            const SizedBox(height: 5),
+            Text(
+              'Pantau aktivitas penjualan tokomu hari ini.',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: brand,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: brand.withOpacity(0.16),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.account_balance_wallet_outlined,
+                          color: Colors.white70, size: 19),
+                      const SizedBox(width: 8),
+                      const Text('PENJUALAN HARI INI',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.w700,
+                          )),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.14),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text('HARI INI',
+                            style: TextStyle(color: Colors.white, fontSize: 9,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 13),
+                  Text(
+                    loading ? 'Memuat...' : rupiah(todaySales),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 17),
+                  Container(height: 1, color: Colors.white24),
+                  const SizedBox(height: 13),
+                  Row(
+                    children: [
+                      const Icon(Icons.receipt_long_outlined,
+                          color: Colors.white70, size: 18),
+                      const SizedBox(width: 8),
+                      Text('$todayTransactions transaksi selesai',
+                          style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text('Transaksi penjualan',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ink)),
+            const SizedBox(height: 11),
+            SizedBox(
+              height: 62,
+              child: FilledButton.icon(
+                onPressed: () => _open(const CashierPage()),
+                icon: const Icon(Icons.point_of_sale_rounded, size: 23),
+                label: const Text('MULAI TRANSAKSI',
+                    style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                style: FilledButton.styleFrom(
+                  backgroundColor: brand,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 25),
+            const Text('Kelola toko',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ink)),
+            const SizedBox(height: 11),
+            _dashboardMenu(
+              icon: Icons.inventory_2_outlined,
+              title: 'Produk & Stok',
+              subtitle: 'Atur daftar barang dan persediaan',
+              onTap: () => _open(const ProductsPage()),
+            ),
+            const SizedBox(height: 10),
+            _dashboardMenu(
+              icon: Icons.receipt_long_rounded,
+              title: 'Riwayat Transaksi',
+              subtitle: 'Lihat penjualan yang sudah tercatat',
+              onTap: () => _open(const TransactionsPage()),
+            ),
+            const SizedBox(height: 10),
+            _dashboardMenu(
+              icon: Icons.bar_chart_rounded,
+              title: 'Laporan Penjualan',
+              subtitle: 'Pantau ringkasan hasil penjualan',
+              onTap: () => _open(const ReportsPage()),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.all(13),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE9F2ED),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline_rounded, color: brand, size: 19),
+                  SizedBox(width: 9),
+                  Expanded(
+                    child: Text(
+                      'Data tersimpan di perangkat ini. Lakukan pencadangan secara berkala agar data tokomu tetap aman.',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF496257), height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dashboardMenu({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE9F2ED),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(icon, color: brand, size: 24),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 14, color: ink)),
+                    const SizedBox(height: 4),
+                    Text(subtitle,
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: Colors.grey.shade500),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+  const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  int todaySales = 0;
+  int todayTransactions = 0;
+  bool loading = true;
 
   @override
   void initState() {
