@@ -174,18 +174,34 @@ class KasirBasicApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'KasirBasic',
       theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF176B52)),
-        scaffoldBackgroundColor: const Color(0xFFF7F8FA),
-        appBarTheme: const AppBarTheme(centerTitle: false),
-        cardTheme: CardThemeData(
-          elevation: 1,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        ),
-      ),
+  useMaterial3: true,
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: const Color(0xFF075B43),
+    brightness: Brightness.light,
+  ),
+  scaffoldBackgroundColor: const Color(0xFFF6F8F2),
+  appBarTheme: const AppBarTheme(
+    centerTitle: false,
+    backgroundColor: Color(0xFFF6F8F2),
+    foregroundColor: Color(0xFF123D31),
+    elevation: 0,
+  ),
+  cardTheme: CardThemeData(
+    color: const Color(0xFFFFFEFA),
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(22),
+    ),
+  ),
+  filledButtonTheme: FilledButtonThemeData(
+    style: FilledButton.styleFrom(
+      backgroundColor: const Color(0xFF075B43),
+      foregroundColor: Colors.white,
+      minimumSize: const Size(0, 50),
+    ),
+  ),
+),
       home: const DashboardPage(),
     );
   }
@@ -197,7 +213,7 @@ String rupiah(int value) {
   for (int i = 0; i < digits.length; i++) {
     result.write(digits[i]);
     final remaining = digits.length - i - 1;
-    if (remaining > 0 && remaining % 3 == 0) result.write('.');
+    if (remaining > 0 Themeing % 3 == 0) result.write('.');
   }
   return 'Rp$result';
 }
