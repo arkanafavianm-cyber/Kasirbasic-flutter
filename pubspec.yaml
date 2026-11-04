@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.5.3
+  file_picker: ^11.0.3
 
 dev_dependencies:
   flutter_test:
