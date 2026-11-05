@@ -29,7 +29,7 @@ class _BackupPageState extends State<BackupPage> {
       final fileName =
           'kasirbasic_backup_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
 
-      final path = await FilePicker.platform.saveFile(
+      final path = await FilePicker.saveFile(
         fileName: fileName,
         type: FileType.custom,
         allowedExtensions: ['json'],
@@ -50,7 +50,7 @@ class _BackupPageState extends State<BackupPage> {
 
   Future<void> restoreBackup() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
         withData: true,
