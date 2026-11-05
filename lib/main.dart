@@ -151,9 +151,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 _menu(Icons.receipt_long, 'Transaksi',
                     () => _open(const TransactionsPage())),
                 _menu(Icons.bar_chart, 'Laporan',
-                    () => _open(const ReportsPage())),
-              ],
-            ),
+    () => _open(const ReportsPage())),
+_menu(Icons.backup_outlined, 'Backup & Restore',
+    () => _open(const BackupPage())),
+],
             const SizedBox(height: 12),
             const Text(
               'Catatan: data tersimpan di perangkat ini. Buat cadangan secara berkala jika aplikasi digunakan untuk usaha.',
