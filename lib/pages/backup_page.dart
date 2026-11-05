@@ -50,20 +50,14 @@ class _BackupPageState extends State<BackupPage> {
 
   Future<void> restoreBackup() async {
     try {
-      final result = await FilePicker.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
-        withData: true,
       );
 
-      if (result == null || result.files.isEmpty) return;
+      if (file == null) return;
 
-      final bytes = result.files.single.bytes;
-
-      if (bytes == null) {
-        showMessage('File tidak dapat dibaca.');
-        return;
-      }
+      final bytes = await file.readAsBytes();
 
       if (!mounted) return;
 
