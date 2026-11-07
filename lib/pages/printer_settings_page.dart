@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
-
 import '../services/printer_service.dart';
 
 class PrinterSettingsPage extends StatefulWidget {
