@@ -659,11 +659,17 @@ class _CashierPageState extends State<CashierPage> {
       }
     }
 
-    final paidController = TextEditingController(text: total.toString());
-    final formKey = GlobalKey<FormState>();
-    final paid = await showDialog<int>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
+    
+final paidController = TextEditingController(text: total.toString());
+final formKey = GlobalKey<FormState>();
+
+final paid = await showDialog<int>(
+  context: context,
+  builder: (dialogContext) => StatefulBuilder(
+    builder: (dialogContext, setDialogState) {
+      final amount = int.tryParse(paidController.text) ?? 0;
+
+      return AlertDialog(
         title: const Text('Pembayaran'),
         content: Form(
           key: formKey,
@@ -671,44 +677,78 @@ class _CashierPageState extends State<CashierPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Total: ${rupiah(total)}',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Total: ${rupiah(total)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: paidController,
                 keyboardType: TextInputType.number,
                 autofocus: true,
                 decoration: const InputDecoration(
-                    labelText: 'Uang diterima (Rp)',
-                    border: OutlineInputBorder()),
+                  labelText: 'Uang diterima (Rp)',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (_) => setDialogState(() {}),
                 validator: (value) {
-                  final amount = int.tryParse(value ?? '');
-                  if (amount == null || amount < total) {
+                  final payment = int.tryParse(value ?? '');
+                  if (payment == null || payment < total) {
                     return 'Uang harus minimal ${rupiah(total)}';
                   }
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+              if (amount >= total)
+                Text(
+                  'Kembalian: ${rupiah(amount - total)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                )
+              else
+                Text(
+                  'Uang kurang: ${rupiah(total - amount)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal'),
+          ),
           FilledButton(
             onPressed: () {
               if (!formKey.currentState!.validate()) return;
-              Navigator.pop(dialogContext, int.parse(paidController.text));
+              Navigator.pop(
+                dialogContext,
+                int.parse(paidController.text),
+              );
             },
             child: const Text('Selesaikan'),
           ),
         ],
-      ),
-    );
-    paidController.dispose();
-    if (paid == null || !mounted) return;
+      );
+    },
+  ),
+);
+
+paidController.dispose();
+
+if (paid == null || !mounted) return;
+
 
     setState(() => saving = true);
     try {
