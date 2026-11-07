@@ -11,7 +11,8 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.5.3
   file_picker: ^12.3.0
-
+  print_bluetooth_thermal: ^1.2.5
+  esc_pos_utils_plus: ^2.0.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
