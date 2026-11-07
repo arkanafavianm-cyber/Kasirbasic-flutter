@@ -5,7 +5,7 @@ import 'models/product.dart';
 import 'models/sale_transaction.dart';
 import 'models/transaction_item.dart';
 import 'pages/backup_page.dart';
-
+import 'pages/printer_settings_page.dart';
 void main() {
   runApp(const KasirBasicApp());
 }
@@ -154,6 +154,8 @@ class _DashboardPageState extends State<DashboardPage> {
         () => _open(const ReportsPage())),
     _menu(Icons.backup_outlined, 'Backup & Restore',
         () => _open(const BackupPage())),
+    _menu(Icons.print_outlined, 'Pengaturan Printer',
+    () => _open(const PrinterSettingsPage())),
   ],
 ),
             const SizedBox(height: 12),
