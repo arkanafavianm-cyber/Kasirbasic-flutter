@@ -6,6 +6,7 @@ import 'models/sale_transaction.dart';
 import 'models/transaction_item.dart';
 import 'pages/backup_page.dart';
 import 'pages/printer_settings_page.dart';
+import 'services/printer_service.dart';
 void main() {
   runApp(const KasirBasicApp());
 }
@@ -1015,14 +1016,42 @@ class _TransactionsPageState extends State<TransactionsPage> {
           ),
         ),
         actions: [
-          FilledButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Tutup')),
-        ],
+  OutlinedButton.icon(
+    onPressed: () => _printTransaction(transaction),
+    icon: const Icon(Icons.print),
+    label: const Text('Cetak Struk'),
+  ),
+  FilledButton(
+    onPressed: () => Navigator.pop(dialogContext),
+    child: const Text('Tutup'),
+  ),
+],
       ),
     );
   }
+Future<void> _printTransaction(SaleTransaction transaction) async {
+  try {
+    final success = await PrinterService.printTransaction(transaction);
 
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? 'Struk berhasil dikirim ke printer.'
+              : 'Printer belum terhubung. Hubungkan printer terlebih dahulu.',
+        ),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Gagal mencetak struk: $e')),
+    );
+  }
+}
   Widget _detailRow(String label, String value) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
