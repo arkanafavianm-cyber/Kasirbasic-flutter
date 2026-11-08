@@ -93,7 +93,7 @@ class PrinterService {
       profile,
     );
 
-    final bytes = <int>[];
+    var bytes = <int>[];
 
     bytes += generator.reset();
 
@@ -210,8 +210,7 @@ class PrinterService {
       profile,
     );
 
-    final bytes = <int>[];
-
+    var bytes = <int>[];
     bytes += generator.reset();
 
     bytes += generator.text(
