@@ -4,7 +4,6 @@ import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/sale_transaction.dart';
-
 enum ReceiptPaper {
   mm58,
   mm80,
