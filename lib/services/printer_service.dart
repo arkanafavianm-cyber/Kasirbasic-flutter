@@ -199,54 +199,14 @@ class PrinterService {
   }
 
   static Future<List<int>> createTestReceipt({
-    required ReceiptPaper paper,
-  }) async {
-    final profile = await CapabilityProfile.load();
-
-    final generator = Generator(
-      paper == ReceiptPaper.mm58
-          ? PaperSize.mm58
-          : PaperSize.mm80,
-      profile,
-    );
-
-    var bytes = <int>[];
-    bytes += generator.reset();
-
-    bytes += generator.text(
-      'KASIR BASIC',
-      styles: const PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: PosTextSize.size2,
-        width: PosTextSize.size2,
-      ),
-    );
-
-    bytes += generator.text(
-      'Tes Cetak Struk',
-      styles: const PosStyles(align: PosAlign.center),
-    );
-
-    bytes += generator.hr();
-    bytes += generator.text('Printer Bluetooth: OK');
-
-    bytes += generator.text(
-      paper == ReceiptPaper.mm58
-          ? 'Ukuran: 58 mm'
-          : 'Ukuran: 80 mm',
-    );
-
-    bytes += generator.hr();
-
-    bytes += generator.text(
-      'Terima kasih',
-      styles: const PosStyles(align: PosAlign.center),
-    );
-
-    bytes += generator.feed(3);
-    bytes += generator.cut();
-
-    return bytes;
+  required ReceiptPaper paper,
+}) async {
+  return [
+    0x1B, 0x40,
+    75, 65, 83, 73, 82, 32, 66, 65, 83, 73, 67,
+    10,
+    84, 69, 83, 32, 67, 69, 84, 65, 75,
+    10, 10, 10,
+  ];
   }
 }
