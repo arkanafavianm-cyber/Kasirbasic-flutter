@@ -325,7 +325,22 @@ class _DashboardPageState extends State<DashboardPage> {
                   color: const Color(0xFFD18B36),
                   onTap: () => _open(const ReportsPage()),
                 ),
-              ],
+            
+_menuCard(
+  icon: Icons.backup_outlined,
+  title: 'Backup & Restore',
+  subtitle: 'Cadangkan data toko',
+  color: const Color(0xFF287D70),
+  onTap: () => _open(const BackupPage()),
+),
+_menuCard(
+  icon: Icons.bluetooth_connected,
+  title: 'Printer Bluetooth',
+  subtitle: 'Hubungkan printer',
+  color: const Color(0xFF5476B8),
+  onTap: () => _open(const PrinterSettingsPage()),
+),
+  ],
             ),
 
             const SizedBox(height: 22),
