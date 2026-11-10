@@ -49,7 +49,398 @@ String rupiah(int value) {
 bool sameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
 
+
 class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  int todaySales = 0;
+  int todayTransactions = 0;
+  bool loading = true;
+
+  static const Color primary = Color(0xFF176B52);
+  static const Color dark = Color(0xFF153D32);
+  static const Color background = Color(0xFFF5F7F8);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSummary();
+  }
+
+  Future<void> _loadSummary() async {
+    final transactions = await LocalStore.loadTransactions();
+    final now = DateTime.now();
+
+    final today = transactions
+        .where((t) => sameDay(t.date, now))
+        .toList();
+
+    if (!mounted) return;
+
+    setState(() {
+      todaySales = today.fold(0, (sum, t) => sum + t.total);
+      todayTransactions = today.length;
+      loading = false;
+    });
+  }
+
+  Future<void> _open(Widget page) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    );
+    _loadSummary();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: background,
+      body: RefreshIndicator(
+        onRefresh: _loadSummary,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+          children: [
+            // HEADER
+            Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: primary,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.point_of_sale_rounded,
+                    color: Colors.white,
+                    size: 25,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'KasirBasic',
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF172B26),
+                        ),
+                      ),
+                      Text(
+                        'Point of Sale',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: const Icon(
+                    Icons.storefront_outlined,
+                    color: primary,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 30),
+
+            // GREETING
+            const Text(
+              'Selamat datang!',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF172B26),
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Kelola tokomu dengan lebih mudah.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // SALES CARD
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [primary, dark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: primary.withValues(alpha: 0.20),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: Colors.white70,
+                        size: 19,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'TOTAL PENJUALAN HARI INI',
+                        style: TextStyle(
+                          fontSize: 11,
+                          letterSpacing: 1,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    loading ? 'Memuat...' : rupiah(todaySales),
+                    style: const TextStyle(
+                      fontSize: 29,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  Container(
+                    height: 1,
+                    color: Colors.white24,
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.receipt_long_outlined,
+                        color: Colors.white70,
+                        size: 19,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        loading
+                            ? 'Memuat transaksi...'
+                            : '$todayTransactions transaksi',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      const Icon(
+                        Icons.trending_up_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // MENU TITLE
+            const Text(
+              'Menu Utama',
+              style: TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF172B26),
+              ),
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'Pilih fitur yang ingin kamu gunakan.',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.black54,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // MENU GRID
+            GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 13,
+              mainAxisSpacing: 13,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 1.18,
+              children: [
+                _menuCard(
+                  icon: Icons.point_of_sale_rounded,
+                  title: 'Mulai Kasir',
+                  subtitle: 'Buat transaksi',
+                  color: primary,
+                  onTap: () => _open(const CashierPage()),
+                ),
+                _menuCard(
+                  icon: Icons.inventory_2_outlined,
+                  title: 'Produk',
+                  subtitle: 'Kelola stok',
+                  color: const Color(0xFF3476B9),
+                  onTap: () => _open(const ProductsPage()),
+                ),
+                _menuCard(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Transaksi',
+                  subtitle: 'Riwayat penjualan',
+                  color: const Color(0xFF9565C7),
+                  onTap: () => _open(const TransactionsPage()),
+                ),
+                _menuCard(
+                  icon: Icons.bar_chart_rounded,
+                  title: 'Laporan',
+                  subtitle: 'Analisis penjualan',
+                  color: const Color(0xFFD18B36),
+                  onTap: () => _open(const ReportsPage()),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 22),
+
+            // STORAGE INFORMATION
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFFE8ECEA),
+                ),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.shield_outlined,
+                    color: primary,
+                    size: 24,
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Data tersimpan lokal',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Data aplikasi tersimpan di perangkat ini.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _menuCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: const Color(0xFFE9EEEB),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 25,
+                ),
+              ),
+              const SizedBox(height: 13),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF172B26),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
   const DashboardPage({super.key});
 
   @override
