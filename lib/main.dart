@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -491,17 +492,23 @@ class _ProductsPageState extends State<ProductsPage> {
 
 
 
+
 Future<String?> _pickProductImage() async {
-  final picked = await FilePicker.pickFiles(
+  final result = await FilePicker.platform.pickFiles(
     type: FileType.image,
-    withData: true,
   );
 
-  if (picked.isEmpty) return null;
+  if (result == null || result.files.isEmpty) {
+    return null;
+  }
 
-  final bytes = picked.single.bytes;
+  final path = result.files.single.path;
 
-  if (bytes == null) return null;
+  if (path == null) {
+    return null;
+  }
+
+  final bytes = await File(path).readAsBytes();
 
   return base64Encode(bytes);
 }
