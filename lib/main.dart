@@ -487,20 +487,26 @@ class _ProductsPageState extends State<ProductsPage> {
 
   Future<void> _save() async => LocalStore.saveProducts(products);
 
+
+
 Future<String?> _pickProductImage() async {
-  final picked = await FilePicker.platform.pickFiles(
+  final picked = await FilePicker.pickFiles(
     type: FileType.image,
     withData: true,
   );
 
-  if (picked == null) return null;
+  if (picked == null || picked.files.isEmpty) {
+    return null;
+  }
 
   final bytes = picked.files.single.bytes;
+
   if (bytes == null) return null;
 
   return base64Encode(bytes);
 }
 
+  
   Future<void> _addProduct() async {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
