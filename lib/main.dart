@@ -487,12 +487,27 @@ class _ProductsPageState extends State<ProductsPage> {
 
   Future<void> _save() async => LocalStore.saveProducts(products);
 
+Future<String?> _pickProductImage() async {
+  final picked = await FilePicker.platform.pickFiles(
+    type: FileType.image,
+    withData: true,
+  );
+
+  if (picked == null) return null;
+
+  final bytes = picked.files.single.bytes;
+  if (bytes == null) return null;
+
+  return base64Encode(bytes);
+}
+
   Future<void> _addProduct() async {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final priceController = TextEditingController();
     final stockController = TextEditingController();
 
+    String? imageBase64;
     final result = await showDialog<Product>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -536,8 +551,22 @@ class _ProductsPageState extends State<ProductsPage> {
                         ? 'Stok harus 0 atau lebih'
                         : null;
                   },
-                ),
-              ],
+                
+              ),
+              const SizedBox(height: 12),
+
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final image = await _pickProductImage();
+                  if (image != null) {
+                    imageBase64 = image;
+                  }
+                },
+                icon: const Icon(Icons.image),
+                label: const Text('Pilih Gambar dari Galeri'),
+              ),
+            ],
+
             ),
           ),
         ),
@@ -555,6 +584,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   name: nameController.text.trim(),
                   price: int.parse(priceController.text),
                   stock: int.parse(stockController.text),
+                  imageBase64: imageBase64,
                 ),
               );
             },
@@ -581,6 +611,7 @@ class _ProductsPageState extends State<ProductsPage> {
         TextEditingController(text: product.price.toString());
     final stockController =
         TextEditingController(text: product.stock.toString());
+    
 
     final result = await showDialog<Product>(
       context: context,
@@ -679,6 +710,8 @@ Future<void> editProduct(Product product) async {
   final stockController =
       TextEditingController(text: product.stock.toString());
 
+  String? imageBase64 = product.imageBase64;
+
   final result = await showDialog<Product>(
     context: context,
     builder: (dialogContext) => AlertDialog(
@@ -730,7 +763,20 @@ Future<void> editProduct(Product product) async {
                       : null;
                 },
               ),
-            ],
+           
+const SizedBox(height: 12),
+
+OutlinedButton.icon(
+  onPressed: () async {
+    final image = await _pickProductImage();
+    if (image != null) {
+      imageBase64 = image;
+    }
+  },
+  icon: const Icon(Icons.image),
+  label: const Text('Pilih Gambar dari Galeri'),
+),
+ ],
           ),
         ),
       ),
@@ -748,6 +794,7 @@ Future<void> editProduct(Product product) async {
                 name: nameController.text.trim(),
                 price: int.parse(priceController.text),
                 stock: int.parse(stockController.text),
+                imageBase64: imageBase64,
               ),
             );
           },
