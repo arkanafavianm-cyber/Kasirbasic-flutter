@@ -429,23 +429,11 @@ _menuCard(
                   color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: product.imageBase64 != null &&
-        product.imageBase64!.isNotEmpty
-    ? ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.memory(
-          base64Decode(product.imageBase64!),
-          width: 25,
-          height: 25,
-          fit: BoxFit.cover,
-        ),
-      )
-    : Icon(
-        icon,
-        color: color,
-        size: 25,
-      ),
-              ),
+                child: Icon(
+  icon,
+  color: color,
+  size: 25,
+),
               const SizedBox(height: 13),
               Text(
                 title,
