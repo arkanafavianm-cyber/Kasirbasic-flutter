@@ -717,16 +717,19 @@ OutlinedButton.icon(
           FilledButton(
             onPressed: () {
               if (!formKey.currentState!.validate()) return;
-              Navigator.pop(
-                dialogContext,
-                product.copyWith(
-                  name: nameController.text.trim(),
-                  price: int.parse(priceController.text),
-                  stock: int.parse(stockController.text),
-                  clearImage: imageBase64 == null,
-),
-                ),
-              );
+              
+                
+Navigator.pop(
+  dialogContext,
+  product.copyWith(
+    name: nameController.text.trim(),
+    price: int.parse(priceController.text),
+    stock: int.parse(stockController.text),
+    imageBase64: imageBase64,
+    clearImage: imageBase64 == null,
+  ),
+);
+
             },
             child: const Text('Simpan Perubahan'),
           ),
