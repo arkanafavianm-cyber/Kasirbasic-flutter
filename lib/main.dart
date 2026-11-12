@@ -891,8 +891,27 @@ OutlinedButton.icon(
                     final product = products[index];
                     return Card(
                       child: ListTile(
-                        leading: const CircleAvatar(
-                            child: Icon(Icons.inventory_2_outlined)),
+                        
+leading: product.imageBase64 != null &&
+        product.imageBase64!.isNotEmpty
+    ? ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.memory(
+          base64Decode(product.imageBase64!),
+          width: 56,
+          height: 56,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return const CircleAvatar(
+              child: Icon(Icons.broken_image_outlined),
+            );
+          },
+        ),
+      )
+    : const CircleAvatar(
+        child: Icon(Icons.inventory_2_outlined),
+      ),
+
                         title: Text(product.name,
                             style:
                                 const TextStyle(fontWeight: FontWeight.bold)),
