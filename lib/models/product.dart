@@ -14,19 +14,24 @@ class Product {
     this.imageBase64,
   });
 
-  Product copyWith({
-    String? name,
-    int? price,
-    int? stock,
-    String? imageBase64,
-  }) =>
-      Product(
-        id: id,
-        name: name ?? this.name,
-        price: price ?? this.price,
-        stock: stock ?? this.stock,
-        imageBase64: imageBase64 ?? this.imageBase64,
-      );
+  
+Product copyWith({
+  String? name,
+  int? price,
+  int? stock,
+  String? imageBase64,
+  bool clearImage = false,
+}) =>
+    Product(
+      id: id,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      stock: stock ?? this.stock,
+      imageBase64: clearImage
+          ? null
+          : imageBase64 ?? this.imageBase64,
+    );
+
 
   Map<String, dynamic> toJson() => {
         'id': id,
