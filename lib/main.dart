@@ -641,6 +641,7 @@ Column(
         TextEditingController(text: product.stock.toString());
     
     String? imageBase64 = product.imageBase64;
+    bool clearImage = false;
 
     final result = await showDialog<Product>(
       context: context,
@@ -821,6 +822,7 @@ Column(
         final image = await _pickProductImage();
         if (image != null) {
           imageBase64 = image;
+          clearImage = false;
         }
       },
       icon: const Icon(Icons.image),
@@ -830,6 +832,7 @@ Column(
       TextButton.icon(
         onPressed: () {
           imageBase64 = null;
+          clearImage = true;
         },
         icon: const Icon(Icons.delete_outline),
         label: const Text('Hapus Gambar'),
@@ -859,7 +862,7 @@ Column(
                 price: int.parse(priceController.text),
                 stock: int.parse(stockController.text),
                 imageBase64: imageBase64,
-                clearImage: imageBase64 == null,
+                clearImage: clearImage,
               ),
             );
           },
