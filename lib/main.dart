@@ -723,7 +723,8 @@ OutlinedButton.icon(
                   name: nameController.text.trim(),
                   price: int.parse(priceController.text),
                   stock: int.parse(stockController.text),
-                  imageBase64: imageBase64,
+                  clearImage: imageBase64 == null,
+),
                 ),
               );
             },
