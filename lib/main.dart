@@ -565,16 +565,34 @@ Future<String?> _pickProductImage() async {
               ),
               const SizedBox(height: 12),
 
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final image = await _pickProductImage();
-                  if (image != null) {
-                    imageBase64 = image;
-                  }
-                },
-                icon: const Icon(Icons.image),
-                label: const Text('Pilih Gambar dari Galeri'),
-              ),
+              
+Column(
+  children: [
+    OutlinedButton.icon(
+      onPressed: () async {
+        final image = await _pickProductImage();
+        if (image != null) {
+          imageBase64 = image;
+        }
+      },
+      icon: const Icon(Icons.image),
+      label: const Text('Pilih Gambar dari Galeri'),
+    ),
+    if (imageBase64 != null && imageBase64!.isNotEmpty)
+      TextButton.icon(
+        onPressed: () {
+          imageBase64 = null;
+        },
+        icon: const Icon(Icons.delete_outline),
+        label: const Text('Hapus Gambar'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.red,
+        ),
+      ),
+  ],
+),
+
+                
             ],
 
             ),
@@ -791,17 +809,34 @@ Future<void> editProduct(Product product) async {
            
 const SizedBox(height: 12),
 
-OutlinedButton.icon(
-  onPressed: () async {
-    final image = await _pickProductImage();
-    if (image != null) {
-      imageBase64 = image;
-    }
-  },
-  icon: const Icon(Icons.image),
-  label: const Text('Pilih Gambar dari Galeri'),
+
+Column(
+  children: [
+    OutlinedButton.icon(
+      onPressed: () async {
+        final image = await _pickProductImage();
+        if (image != null) {
+          imageBase64 = image;
+        }
+      },
+      icon: const Icon(Icons.image),
+      label: const Text('Pilih Gambar dari Galeri'),
+    ),
+    if (imageBase64 != null && imageBase64!.isNotEmpty)
+      TextButton.icon(
+        onPressed: () {
+          imageBase64 = null;
+        },
+        icon: const Icon(Icons.delete_outline),
+        label: const Text('Hapus Gambar'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.red,
+        ),
+      ),
+  ],
 ),
- ],
+
+  
           ),
         ),
       ),
