@@ -429,11 +429,22 @@ _menuCard(
                   color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 25,
-                ),
+                child: product.imageBase64 != null &&
+        product.imageBase64!.isNotEmpty
+    ? ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.memory(
+          base64Decode(product.imageBase64!),
+          width: 25,
+          height: 25,
+          fit: BoxFit.cover,
+        ),
+      )
+    : Icon(
+        icon,
+        color: color,
+        size: 25,
+      ),
               ),
               const SizedBox(height: 13),
               Text(
@@ -618,6 +629,7 @@ Future<String?> _pickProductImage() async {
     final stockController =
         TextEditingController(text: product.stock.toString());
     
+    String? imageBase64 = product.imageBase64;
 
     final result = await showDialog<Product>(
       context: context,
@@ -669,7 +681,20 @@ Future<String?> _pickProductImage() async {
                         : null;
                   },
                 ),
-              ],
+            
+const SizedBox(height: 12),
+
+OutlinedButton.icon(
+  onPressed: () async {
+    final image = await _pickProductImage();
+    if (image != null) {
+      imageBase64 = image;
+    }
+  },
+  icon: const Icon(Icons.image),
+  label: const Text('Pilih Gambar dari Galeri'),
+),
+  ],
             ),
           ),
         ),
@@ -687,6 +712,7 @@ Future<String?> _pickProductImage() async {
                   name: nameController.text.trim(),
                   price: int.parse(priceController.text),
                   stock: int.parse(stockController.text),
+                  imageBase64: imageBase64,
                 ),
               );
             },
