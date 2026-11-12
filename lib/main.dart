@@ -493,22 +493,15 @@ class _ProductsPageState extends State<ProductsPage> {
 
 
 
+
 Future<String?> _pickProductImage() async {
-  final result = await FilePicker.platform.pickFiles(
+  final picked = await FilePicker.pickFile(
     type: FileType.image,
   );
 
-  if (result == null || result.files.isEmpty) {
-    return null;
-  }
+  if (picked == null) return null;
 
-  final path = result.files.single.path;
-
-  if (path == null) {
-    return null;
-  }
-
-  final bytes = await File(path).readAsBytes();
+  final bytes = await picked.readAsBytes();
 
   return base64Encode(bytes);
 }
