@@ -417,23 +417,28 @@ _menuCard(
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: const Color(0xFFE9EEEB),
+            ),  
             ),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(11),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-  icon,
-  color: color,
-  size: 25,
+              
+
+Container(
+  padding: const EdgeInsets.all(11),
+  decoration: BoxDecoration(
+    color: color.withValues(alpha: 0.10),
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Icon(
+    icon,
+    color: color,
+    size: 25,
+  ),
 ),
+
+
               const SizedBox(height: 13),
               Text(
                 title,
