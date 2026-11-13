@@ -190,6 +190,7 @@ class _DashboardPageState extends State<DashboardPage> {
   onTap: () => _open(const AnalyticsPage()),
   borderRadius: BorderRadius.circular(22),
   child: Container(
+    padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [primary, dark],
