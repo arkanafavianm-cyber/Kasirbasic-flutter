@@ -186,8 +186,10 @@ class _DashboardPageState extends State<DashboardPage> {
             const SizedBox(height: 24),
 
             // SALES CARD
-            Container(
-              padding: const EdgeInsets.all(22),
+            InkWell(
+  onTap: () => _open(const AnalyticsPage()),
+  borderRadius: BorderRadius.circular(22),
+  child: Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [primary, dark],
@@ -269,7 +271,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 ],
               ),
             ),
-
+            ), 
+            
             const SizedBox(height: 30),
 
             // MENU TITLE
@@ -457,6 +460,323 @@ Container(
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class AnalyticsPage extends StatefulWidget {
+  const AnalyticsPage({super.key});
+
+  @override
+  State<AnalyticsPage> createState() => _AnalyticsPageState();
+}
+
+class _AnalyticsPageState extends State<AnalyticsPage> {
+  List<SaleTransaction> transactions = [];
+  bool loading = true;
+
+  static const Color primary = Color(0xFF176B52);
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final loaded = await LocalStore.loadTransactions();
+
+    if (!mounted) return;
+
+    setState(() {
+      transactions = loaded;
+      loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final start7 = today.subtract(
+      const Duration(days: 6),
+    );
+
+    final start30 = today.subtract(
+      const Duration(days: 29),
+    );
+
+    final last7 = transactions.where((t) =>
+        !t.date.isBefore(start7) &&
+        !t.date.isAfter(now)).toList();
+
+    final last30 = transactions.where((t) =>
+        !t.date.isBefore(start30) &&
+        !t.date.isAfter(now)).toList();
+
+    final omzet7 = last7.fold<int>(
+      0, (sum, t) => sum + t.total,
+    );
+
+    final omzet30 = last30.fold<int>(
+      0, (sum, t) => sum + t.total,
+    );
+
+    final items7 = last7.fold<int>(
+      0, (sum, t) => sum + t.totalItems,
+    );
+
+    final items30 = last30.fold<int>(
+      0, (sum, t) => sum + t.totalItems,
+    );
+
+    final dailyTotals = List<int>.generate(7, (index) {
+      final day = start7.add(Duration(days: index));
+
+      return last7.where((t) =>
+          t.date.year == day.year &&
+          t.date.month == day.month &&
+          t.date.day == day.day
+      ).fold<int>(0, (sum, t) => sum + t.total);
+    });
+
+    final maxDaily = dailyTotals.fold<int>(
+      0,
+      (maxValue, value) =>
+          value > maxValue ? value : maxValue,
+    );
+
+    final labels = [
+      'Sen', 'Sel', 'Rab', 'Kam',
+      'Jum', 'Sab', 'Min'
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Analytics Penjualan'),
+        actions: [
+          IconButton(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+
+      body: loading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+
+                  const Text(
+                    'Performa Toko',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _heading('7 Hari Terakhir'),
+
+                  _statCard(
+                    'Total Omzet',
+                    rupiah(omzet7),
+                    Icons.account_balance_wallet,
+                  ),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _statCard(
+                          'Transaksi',
+                          last7.length.toString(),
+                          Icons.receipt_long,
+                        ),
+                      ),
+                      Expanded(
+                        child: _statCard(
+                          'Barang Terjual',
+                          items7.toString(),
+                          Icons.shopping_bag,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _heading('Grafik Omzet Harian'),
+
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: SizedBox(
+                        height: 150,
+                        child: Row(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.end,
+                          children: List.generate(7, (index) {
+                            final amount = dailyTotals[index];
+
+                            final barHeight = maxDaily == 0
+                                ? 5.0
+                                : (amount / maxDaily * 105)
+                                    .clamp(5.0, 105.0)
+                                    .toDouble();
+
+                            final day = start7.add(
+                              Duration(days: index),
+                            );
+
+                            return Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      amount == 0
+                                          ? '-'
+                                          : _compact(amount),
+                                      style: const TextStyle(
+                                        fontSize: 9,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Container(
+                                      height: barHeight,
+                                      decoration: BoxDecoration(
+                                        color: amount == 0
+                                            ? Colors.grey.shade300
+                                            : primary,
+                                        borderRadius:
+                                            BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      labels[day.weekday - 1],
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _heading('30 Hari Terakhir'),
+
+                  _statCard(
+                    'Total Omzet',
+                    rupiah(omzet30),
+                    Icons.calendar_month,
+                  ),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _statCard(
+                          'Transaksi',
+                          last30.length.toString(),
+                          Icons.receipt_long,
+                        ),
+                      ),
+                      Expanded(
+                        child: _statCard(
+                          'Barang Terjual',
+                          items30.toString(),
+                          Icons.inventory_2,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  const Text(
+                    'Omzet dihitung berdasarkan total '
+                    'transaksi, bukan laba bersih. '
+                    'Periode mencakup hari ini.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  String _compact(int value) {
+    if (value >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)} jt';
+    }
+
+    if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(0)} rb';
+    }
+
+    return value.toString();
+  }
+
+  Widget _heading(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _statCard(
+    String title,
+    String value,
+    IconData icon,
+  ) {
+    return Card(
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: primary,
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 12),
+        ),
+        subtitle: Text(
+          value,
+          style: const TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF153D32),
           ),
         ),
       ),
