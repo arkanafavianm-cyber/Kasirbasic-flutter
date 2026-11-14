@@ -795,6 +795,7 @@ class ProductsPage extends StatefulWidget {
 class _ProductsPageState extends State<ProductsPage> {
   List<Product> products = [];
   bool loading = true;
+  bool gridView = false;
 
   @override
   void initState() {
@@ -1228,7 +1229,24 @@ Column(
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Produk')),
+      appBar: AppBar(
+  title: const Text('Daftar Produk'),
+  actions: [
+    IconButton(
+      tooltip: gridView ? 'Tampilan daftar' : 'Tampilan kisi',
+      icon: Icon(
+        gridView
+            ? Icons.view_list_rounded
+            : Icons.grid_view_rounded,
+      ),
+      onPressed: () {
+        setState(() {
+          gridView = !gridView;
+        });
+      },
+    ),
+  ],
+),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addProduct,
         icon: const Icon(Icons.add),
@@ -1246,7 +1264,79 @@ Column(
                     ),
                   ),
                 )
-              : ListView.builder(
+              : gridView
+
+? GridView.builder(
+    padding: const EdgeInsets.all(12),
+    gridDelegate:
+        const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 0.72,
+    ),
+    itemCount: products.length,
+    itemBuilder: (context, index) {
+      final product = products[index];
+
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: product.imageBase64 != null &&
+                          product.imageBase64!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            base64Decode(product.imageBase64!),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const CircleAvatar(
+                          child: Icon(Icons.inventory_2_outlined),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                product.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              Text(rupiah(product.price)),
+              Text('Stok: ${product.stock}'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: () => editProduct(product),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () => _deleteProduct(product),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+)
+
+    : ListView.builder(
+        // Tampilan daftar yang lama
+      
                   padding: const EdgeInsets.all(12),
                   itemCount: products.length,
                   itemBuilder: (context, index) {
