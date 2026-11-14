@@ -795,7 +795,7 @@ class ProductsPage extends StatefulWidget {
 class _ProductsPageState extends State<ProductsPage> {
   List<Product> products = [];
   bool loading = true;
-  bool gridView = false;
+  static bool gridView = false;
 
   @override
   void initState() {
