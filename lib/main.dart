@@ -505,11 +505,12 @@ void _handleChartSwipe(DragEndDetails details) {
     setState(() {
       _weekOffset++;
     });
-  } else if (velocity > 100 && _weekOffset > 0) {
+} else if (velocity > 100 && _weekOffset > 0) {
     setState(() {
       _weekOffset--;
     });
   }
+} // Penutup fungsi _handleChartSwipe
   
   @override
   Widget build(BuildContext context) {
