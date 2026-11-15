@@ -2054,14 +2054,28 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _reportCard(String title, String value, IconData icon) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(child: Icon(icon)),
-        title: Text(title),
-        subtitle: Text(value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+  
+
+
       ),
     );
   }
+}
+
+Widget _reportCard(String title, String value, IconData icon) {
+  return Card(
+    child: ListTile(
+      leading: CircleAvatar(
+        child: Icon(icon),
+      ),
+      title: Text(title),
+      subtitle: Text(
+        value,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  );
 }
