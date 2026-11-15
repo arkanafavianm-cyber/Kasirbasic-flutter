@@ -2053,14 +2053,8 @@ class _ReportsPageState extends State<ReportsPage> {
             ),
     );
   }
-
-  
-
-
-      ),
-    );
-  }
 }
+ 
 
 Widget _reportCard(String title, String value, IconData icon) {
   return Card(
