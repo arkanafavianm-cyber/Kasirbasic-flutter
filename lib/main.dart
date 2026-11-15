@@ -642,84 +642,77 @@ final maxDaily = dailyTotals.fold<int>(
 
                   _heading('Grafik Omzet Harian'),
 
-                  GestureDetector(
+                  
+GestureDetector(
   onHorizontalDragEnd: _handleChartSwipe,
   child: Card(
     child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: SizedBox(
-                        height: 150,
-                        child: Row(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.end,
-                          children: List.generate(7, (index) {
-                            final amount = dailyTotals[index];
+      padding: const EdgeInsets.all(14),
+      child: SizedBox(
+        height: 150,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: List.generate(7, (index) {
+            final amount = dailyTotals[index];
 
-                            final barHeight = maxDaily == 0
-                                ? 5.0
-                                : (amount / maxDaily * 105)
-                                    .clamp(5.0, 105.0)
-                                    .toDouble();
+            final barHeight = maxDaily == 0
+                ? 5.0
+                : (amount / maxDaily * 105)
+                    .clamp(5.0, 105.0)
+                    .toDouble();
 
-                            final day = chartStart.add(
-                              Duration(days: index),
-                            );
-                            return Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(
-                                  horizontal: 3,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      amount == 0
-                                          ? '-'
-                                          : _compact(amount),
-                                      style: const TextStyle(
-                                        fontSize: 9,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    AnimatedContainer(
-  duration: const Duration(milliseconds: 600),
-  curve: Curves.easeOutCubic,
-  height: barHeight,
-  decoration: BoxDecoration(
-    color: amount == 0
-        ? Colors.grey.shade300
-        : primary,
-    borderRadius: BorderRadius.circular(6),
-  ),
-),
-                                    Column(
-  children: [
-    Text(
-      labels[day.weekday - 1],
-      style: const TextStyle(
-        fontSize: 10,
-      ),
-    ),
-    const SizedBox(height: 2),
-    Text(
-      '${day.day}/${day.month}',
-      style: const TextStyle(
-        fontSize: 9,
-        color: Colors.black54,
-                 ),
-          ),
-        ],
-      ),
-    ),
-  );
-}),
- ),                                  
-             ),
+            final day = chartStart.add(
+              Duration(days: index),
+            );
+
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 3,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      amount == 0 ? '-' : _compact(amount),
+                      style: const TextStyle(fontSize: 9),
+                    ),
+                    const SizedBox(height: 5),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeOutCubic,
+                      height: barHeight,
+                      decoration: BoxDecoration(
+                        color: amount == 0
+                            ? Colors.grey.shade300
+                            : primary,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      labels[day.weekday - 1],
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${day.day}/${day.month}',
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
         ),
       ),
-    ),                                 
+    ),
+  ),
+),
+
                  const SizedBox(height: 20),
 
                   _heading('30 Hari Terakhir'),
