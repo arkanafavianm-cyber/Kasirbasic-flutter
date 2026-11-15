@@ -708,11 +708,19 @@ final maxDaily = dailyTotals.fold<int>(
       style: const TextStyle(
         fontSize: 9,
         color: Colors.black54,
+                 ),
+          ),
+        ],
       ),
     ),
-  ],
-),
-                  const SizedBox(height: 20),
+  );
+}),
+ ),                                  
+             ),
+        ),
+      ),
+    ),                                 
+                 const SizedBox(height: 20),
 
                   _heading('30 Hari Terakhir'),
 
