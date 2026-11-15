@@ -479,7 +479,7 @@ class AnalyticsPage extends StatefulWidget {
 class _AnalyticsPageState extends State<AnalyticsPage> {
   List<SaleTransaction> transactions = [];
   bool loading = true;
-
+  int _weekOffset = 0;
   static const Color primary = Color(0xFF176B52);
 
   @override
@@ -498,7 +498,19 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       loading = false;
     });
   }
+void _handleChartSwipe(DragEndDetails details) {
+  final velocity = details.primaryVelocity ?? 0;
 
+  if (velocity < -100) {
+    setState(() {
+      _weekOffset++;
+    });
+  } else if (velocity > 100 && _weekOffset > 0) {
+    setState(() {
+      _weekOffset--;
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -536,21 +548,31 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       0, (sum, t) => sum + t.totalItems,
     );
 
-    final dailyTotals = List<int>.generate(7, (index) {
-      final day = start7.add(Duration(days: index));
+    final chartStart = today.subtract(
+  Duration(days: 6 + (_weekOffset * 7)),
+);
 
-      return last7.where((t) =>
-          t.date.year == day.year &&
-          t.date.month == day.month &&
-          t.date.day == day.day
-      ).fold<int>(0, (sum, t) => sum + t.total);
-    });
+final chartTransactions = transactions.where((t) =>
+    !t.date.isBefore(chartStart) &&
+    t.date.isBefore(chartStart.add(const Duration(days: 7)))
+).toList();
 
-    final maxDaily = dailyTotals.fold<int>(
-      0,
-      (maxValue, value) =>
-          value > maxValue ? value : maxValue,
-    );
+final dailyTotals = List<int>.generate(7, (index) {
+  final day = chartStart.add(Duration(days: index));
+
+  return chartTransactions.where((t) =>
+      t.date.year == day.year &&
+      t.date.month == day.month &&
+      t.date.day == day.day
+  ).fold<int>(0, (sum, t) => sum + t.total);
+});
+
+final maxDaily = dailyTotals.fold<int>(
+  0,
+  (maxValue, value) =>
+      value > maxValue ? value : maxValue,
+);
+      
 
     final labels = [
       'Sen', 'Sel', 'Rab', 'Kam',
@@ -619,8 +641,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
                   _heading('Grafik Omzet Harian'),
 
-                  Card(
-                    child: Padding(
+                  GestureDetector(
+  onHorizontalDragEnd: _handleChartSwipe,
+  child: Card(
+    child: Padding(
                       padding: const EdgeInsets.all(14),
                       child: SizedBox(
                         height: 150,
@@ -636,10 +660,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                                     .clamp(5.0, 105.0)
                                     .toDouble();
 
-                            final day = start7.add(
+                            final day = chartStart.add(
                               Duration(days: index),
                             );
-
                             return Expanded(
                               child: Padding(
                                 padding:
@@ -685,7 +708,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       ),
                     ),
                   ),
-
+                ), 
                   const SizedBox(height: 20),
 
                   _heading('30 Hari Terakhir'),
