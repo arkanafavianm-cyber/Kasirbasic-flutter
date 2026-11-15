@@ -683,33 +683,35 @@ final maxDaily = dailyTotals.fold<int>(
                                       ),
                                     ),
                                     const SizedBox(height: 5),
-                                    Container(
-                                      height: barHeight,
-                                      decoration: BoxDecoration(
-                                        color: amount == 0
-                                            ? Colors.grey.shade300
-                                            : primary,
-                                        borderRadius:
-                                            BorderRadius.circular(6),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      labels[day.weekday - 1],
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ),
-                  ),
-                ), 
+                                    AnimatedContainer(
+  duration: const Duration(milliseconds: 600),
+  curve: Curves.easeOutCubic,
+  height: barHeight,
+  decoration: BoxDecoration(
+    color: amount == 0
+        ? Colors.grey.shade300
+        : primary,
+    borderRadius: BorderRadius.circular(6),
+  ),
+),
+                                    Column(
+  children: [
+    Text(
+      labels[day.weekday - 1],
+      style: const TextStyle(
+        fontSize: 10,
+      ),
+    ),
+    const SizedBox(height: 2),
+    Text(
+      '${day.day}/${day.month}',
+      style: const TextStyle(
+        fontSize: 9,
+        color: Colors.black54,
+      ),
+    ),
+  ],
+),
                   const SizedBox(height: 20),
 
                   _heading('30 Hari Terakhir'),
