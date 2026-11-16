@@ -642,14 +642,14 @@ final maxDaily = dailyTotals.fold<int>(
 
                   _heading('Grafik Omzet Harian'),
 
-                  
+
 GestureDetector(
   onHorizontalDragEnd: _handleChartSwipe,
   child: Card(
     child: Padding(
       padding: const EdgeInsets.all(14),
       child: SizedBox(
-        height: 150,
+        height: 175,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: List.generate(7, (index) {
@@ -657,8 +657,8 @@ GestureDetector(
 
             final barHeight = maxDaily == 0
                 ? 5.0
-                : (amount / maxDaily * 105)
-                    .clamp(5.0, 105.0)
+                : (amount / maxDaily * 95)
+                    .clamp(5.0, 95.0)
                     .toDouble();
 
             final day = chartStart.add(
@@ -677,26 +677,47 @@ GestureDetector(
                       amount == 0 ? '-' : _compact(amount),
                       style: const TextStyle(fontSize: 9),
                     ),
+
                     const SizedBox(height: 5),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 600),
-                      curve: Curves.easeOutCubic,
-                      height: barHeight,
-                      decoration: BoxDecoration(
-                        color: amount == 0
-                            ? Colors.grey.shade300
-                            : primary,
-                        borderRadius: BorderRadius.circular(6),
+
+                    TweenAnimationBuilder<double>(
+                      key: ValueKey(
+                        '${day.year}-${day.month}-${day.day}-$amount',
                       ),
+                      tween: Tween<double>(
+                        begin: 0,
+                        end: barHeight,
+                      ),
+                      duration: const Duration(
+                        milliseconds: 900,
+                      ),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, height, child) {
+                        return Container(
+                          height: height,
+                          decoration: BoxDecoration(
+                            color: amount == 0
+                                ? Colors.grey.shade300
+                                : primary,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        );
+                      },
                     ),
+
                     const SizedBox(height: 6),
+
                     Text(
                       labels[day.weekday - 1],
-                      style: const TextStyle(fontSize: 10),
+                      style: const TextStyle(
+                        fontSize: 10,
+                      ),
                     ),
-                    const SizedBox(height: 2),
+
+                    const SizedBox(height: 3),
+
                     Text(
-                      '${day.day}/${day.month}',
+                      '${day.day.toString().padLeft(2, '0')}/${day.month.toString().padLeft(2, '0')}',
                       style: const TextStyle(
                         fontSize: 9,
                         color: Colors.black54,
@@ -712,6 +733,7 @@ GestureDetector(
     ),
   ),
 ),
+
 
                  const SizedBox(height: 20),
 
