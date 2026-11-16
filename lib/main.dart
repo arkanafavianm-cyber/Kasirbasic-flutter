@@ -480,6 +480,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   List<SaleTransaction> transactions = [];
   bool loading = true;
   int _weekOffset = 0;
+  int _chartSlideDirection = 1;
   static const Color primary = Color(0xFF176B52);
 
   @override
@@ -498,19 +499,24 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       loading = false;
     });
   }
+
 void _handleChartSwipe(DragEndDetails details) {
   final velocity = details.primaryVelocity ?? 0;
 
   if (velocity < -100) {
     setState(() {
+      _chartSlideDirection = 1;
       _weekOffset++;
     });
-} else if (velocity > 100 && _weekOffset > 0) {
+  } else if (velocity > 100 && _weekOffset > 0) {
     setState(() {
+      _chartSlideDirection = -1;
       _weekOffset--;
     });
   }
-} // Penutup fungsi _handleChartSwipe
+}
+
+  
   
   @override
   Widget build(BuildContext context) {
@@ -643,9 +649,32 @@ final maxDaily = dailyTotals.fold<int>(
                   _heading('Grafik Omzet Harian'),
 
 
+
 GestureDetector(
   onHorizontalDragEnd: _handleChartSwipe,
-  child: Card(
+  child: AnimatedSwitcher(
+    duration: const Duration(milliseconds: 400),
+    switchInCurve: Curves.easeOutCubic,
+    switchOutCurve: Curves.easeInCubic,
+    transitionBuilder: (child, animation) {
+      final slide = Tween<Offset>(
+        begin: Offset(
+          _chartSlideDirection.toDouble(),
+          0,
+        ),
+        end: Offset.zero,
+      ).animate(animation);
+
+      return ClipRect(
+        child: SlideTransition(
+          position: slide,
+          child: child,
+        ),
+      );
+    },
+    child: Card(
+      key: ValueKey(_weekOffset),
+
     child: Padding(
       padding: const EdgeInsets.all(14),
       child: SizedBox(
