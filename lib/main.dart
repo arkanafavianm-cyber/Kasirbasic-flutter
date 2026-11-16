@@ -684,85 +684,123 @@ GestureDetector(
           children: List.generate(7, (index) {
             final amount = dailyTotals[index];
 
-            final barHeight = maxDaily == 0
-                ? 5.0
-                : (amount / maxDaily * 95)
-                    .clamp(5.0, 95.0)
-                    .toDouble();
 
-            final day = chartStart.add(
-              Duration(days: index),
-            );
+GestureDetector(
+  onHorizontalDragEnd: _handleChartSwipe,
+  child: AnimatedSwitcher(
+    duration: const Duration(milliseconds: 400),
+    switchInCurve: Curves.easeOutCubic,
+    switchOutCurve: Curves.easeInCubic,
+    transitionBuilder: (child, animation) {
+      final slide = Tween<Offset>(
+        begin: Offset(
+          _chartSlideDirection.toDouble(),
+          0,
+        ),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        ),
+      );
 
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 3,
+      return ClipRect(
+        child: SlideTransition(
+          position: slide,
+          child: child,
+        ),
+      );
+    },
+    child: Card(
+      key: ValueKey<int>(_weekOffset),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: SizedBox(
+          height: 175,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: List.generate(7, (index) {
+              final amount = dailyTotals[index];
+
+              final barHeight = maxDaily == 0
+                  ? 5.0
+                  : (amount / maxDaily * 95)
+                      .clamp(5.0, 95.0)
+                      .toDouble();
+
+              final day = chartStart.add(
+                Duration(days: index),
+              );
+
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 3,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        amount == 0 ? '-' : _compact(amount),
+                        style: const TextStyle(fontSize: 9),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      TweenAnimationBuilder<double>(
+                        key: ValueKey(
+                          '${day.year}-${day.month}-${day.day}-$amount',
+                        ),
+                        tween: Tween<double>(
+                          begin: 0,
+                          end: barHeight,
+                        ),
+                        duration: const Duration(
+                          milliseconds: 900,
+                        ),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, height, child) {
+                          return Container(
+                            height: height,
+                            decoration: BoxDecoration(
+                              color: amount == 0
+                                  ? Colors.grey.shade300
+                                  : primary,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      Text(
+                        labels[day.weekday - 1],
+                        style: const TextStyle(fontSize: 10),
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      Text(
+                        '${day.day.toString().padLeft(2, '0')}/${day.month.toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          fontSize: 9,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      amount == 0 ? '-' : _compact(amount),
-                      style: const TextStyle(fontSize: 9),
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    TweenAnimationBuilder<double>(
-                      key: ValueKey(
-                        '${day.year}-${day.month}-${day.day}-$amount',
-                      ),
-                      tween: Tween<double>(
-                        begin: 0,
-                        end: barHeight,
-                      ),
-                      duration: const Duration(
-                        milliseconds: 900,
-                      ),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, height, child) {
-                        return Container(
-                          height: height,
-                          decoration: BoxDecoration(
-                            color: amount == 0
-                                ? Colors.grey.shade300
-                                : primary,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    Text(
-                      labels[day.weekday - 1],
-                      style: const TextStyle(
-                        fontSize: 10,
-                      ),
-                    ),
-
-                    const SizedBox(height: 3),
-
-                    Text(
-                      '${day.day.toString().padLeft(2, '0')}/${day.month.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
-                        fontSize: 9,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     ),
   ),
 ),
-), 
+
 
 
                  const SizedBox(height: 20),
