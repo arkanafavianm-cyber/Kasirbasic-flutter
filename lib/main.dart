@@ -762,6 +762,7 @@ GestureDetector(
     ),
   ),
 ),
+), 
 
 
                  const SizedBox(height: 20),
