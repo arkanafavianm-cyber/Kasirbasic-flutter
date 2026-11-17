@@ -348,7 +348,15 @@ _menuCard(
   color: const Color(0xFF5476B8),
   onTap: () => _open(const PrinterSettingsPage()),
 ),
-  ],
+ 
+_menuCard(
+  icon: Icons.warehouse_rounded,
+  title: 'Manajemen Stok',
+  subtitle: 'Stok & HPP Otomatis',
+  color: const Color(0xFF00897B),
+  onTap: () => _open(const StockManagementPage()),
+),
+ ],
             ),
 
             const SizedBox(height: 22),
@@ -2127,4 +2135,316 @@ Widget _reportCard(String title, String value, IconData icon) {
       ),
     ),
   );
+}
+class StockManagementPage extends StatefulWidget {
+  const StockManagementPage({super.key});
+
+  @override
+  State<StockManagementPage> createState() =>
+      _StockManagementPageState();
+}
+
+class _StockManagementPageState
+    extends State<StockManagementPage> {
+  List<Product> products = [];
+  bool loading = true;
+  String selectedCategory = 'Semua';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    final data = await LocalStore.loadProducts();
+    if (!mounted) return;
+
+    setState(() {
+      products = data;
+      loading = false;
+    });
+  }
+
+  Future<void> _saveProducts() async {
+    await LocalStore.saveProducts(products);
+  }
+
+  String _money(num value) {
+    final text = value.round().toString();
+    return 'Rp${text.replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (match) => '.',
+    )}';
+  }
+
+  double get totalValue => products.fold(
+    0,
+    (sum, p) => sum + (p.stock * p.averageCost),
+  );
+
+  List<String> get categories => [
+    'Semua',
+    ...products
+        .map((p) => p.category)
+        .where((c) => c.isNotEmpty)
+        .toSet()
+        .toList()
+  ];
+
+  Future<void> _addStock(Product product) async {
+    final qtyController = TextEditingController();
+    final costController = TextEditingController();
+
+    final result = await showDialog<List<double>>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Tambah Stok ${product.name}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: qtyController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(
+                labelText: 'Jumlah stok masuk',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: costController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Harga beli per unit (Rp)',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final qty = double.tryParse(
+                qtyController.text.replaceAll(',', '.'),
+              );
+              final cost = double.tryParse(
+                costController.text.replaceAll(',', '.'),
+              );
+
+              if (qty == null || cost == null ||
+                  qty <= 0 || cost < 0) {
+                return;
+              }
+
+              Navigator.pop(dialogContext, [qty, cost]);
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+
+    qtyController.dispose();
+    costController.dispose();
+
+    if (result == null) return;
+
+    final qty = result[0];
+    final cost = result[1];
+
+    final oldStock = product.stock;
+    final newStock = oldStock + qty;
+
+    final newAverageCost = newStock > 0
+        ? ((oldStock * product.averageCost) +
+            (qty * cost)) / newStock
+        : cost;
+
+    setState(() {
+      final index = products.indexWhere(
+        (p) => p.id == product.id,
+      );
+
+      if (index != -1) {
+        products[index] = product.copyWith(
+          stock: newStock,
+          averageCost: newAverageCost,
+        );
+      }
+    });
+
+    await _saveProducts();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Stok dan HPP berhasil diperbarui'),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredProducts = products.where((p) {
+      return selectedCategory == 'Semua' ||
+          p.category == selectedCategory;
+    }).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Manajemen Stok'),
+      ),
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _loadProducts,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
+                    color: Colors.green.shade800,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'TOTAL NILAI PERSEDIAAN',
+                            style: TextStyle(
+                              color: Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _money(totalValue),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${products.length} jenis produk',
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Kategori Produk',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: categories.map((category) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            right: 8,
+                          ),
+                          child: ChoiceChip(
+                            label: Text(category),
+                            selected:
+                                selectedCategory == category,
+                            onSelected: (_) {
+                              setState(() {
+                                selectedCategory = category;
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (filteredProducts.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(30),
+                        child: Text('Belum ada produk'),
+                      ),
+                    ),
+                  ...filteredProducts.map((product) {
+                    final lowStock =
+                        product.stock <= product.minStock;
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.category,
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              product.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Stok: ${product.stock} ${product.unit}',
+                            ),
+                            Text(
+                              'HPP rata-rata: ${_money(product.averageCost)}/${product.unit}',
+                            ),
+                            Text(
+                              'Nilai stok: ${_money(product.stock * product.averageCost)}',
+                            ),
+                            if (lowStock)
+                              const Text(
+                                '⚠ Stok mencapai batas minimum',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () =>
+                                    _addStock(product),
+                                icon: const Icon(
+                                  Icons.add_box_outlined,
+                                ),
+                                label: const Text('Tambah Stok'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+    );
+  }
 }
