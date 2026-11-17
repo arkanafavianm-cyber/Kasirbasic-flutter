@@ -1011,7 +1011,7 @@ Column(
                   id: DateTime.now().microsecondsSinceEpoch.toString(),
                   name: nameController.text.trim(),
                   price: int.parse(priceController.text),
-                  stock: int.parse(stockController.text),
+                  stock: double.parse(stockController.text),
                   imageBase64: imageBase64,
                 ),
               );
@@ -1087,7 +1087,7 @@ Column(
                     border: OutlineInputBorder(),
                   ),
                   validator: (v) {
-                    final n = int.tryParse(v ?? '');
+                    final n = double.tryParse(v ?? '');
                     return n == null || n < 0
                         ? 'Stok harus 0 atau lebih'
                         : null;
@@ -1125,7 +1125,7 @@ Navigator.pop(
   product.copyWith(
     name: nameController.text.trim(),
     price: int.parse(priceController.text),
-    stock: int.parse(stockController.text),
+    stock: double.parse(stockController.text),
     imageBase64: imageBase64,
     clearImage: imageBase64 == null,
   ),
@@ -1205,7 +1205,7 @@ Future<void> editProduct(Product product) async {
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) {
-                  final n = int.tryParse(v ?? '');
+                  final n = double.tryParse(v ?? '');
                   return n == null || n < 0
                       ? 'Stok harus 0 atau lebih'
                       : null;
@@ -1258,7 +1258,7 @@ Column(
               product.copyWith(
                 name: nameController.text.trim(),
                 price: int.parse(priceController.text),
-                stock: int.parse(stockController.text),
+                stock: double.parse(stockController.text),
                 imageBase64: imageBase64,
                 clearImage: imageBase64 == null,
               ),
