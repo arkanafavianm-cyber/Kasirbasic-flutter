@@ -486,6 +486,7 @@ class AnalyticsPage extends StatefulWidget {
 
 class _AnalyticsPageState extends State<AnalyticsPage> {
   List<SaleTransaction> transactions = [];
+  List<Product> products = [];
   bool loading = true;
   int _weekOffset = 0;
   int _chartSlideDirection = 1;
@@ -498,14 +499,19 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Future<void> _load() async {
-    final loaded = await LocalStore.loadTransactions();
+  final loadedTransactions =
+      await LocalStore.loadTransactions();
 
-    if (!mounted) return;
+  final loadedProducts =
+      await LocalStore.loadProducts();
 
-    setState(() {
-      transactions = loaded;
-      loading = false;
-    });
+  if (!mounted) return;
+
+  setState(() {
+    transactions = loadedTransactions;
+    products = loadedProducts;
+    loading = false;
+  });
   }
 
 void _handleChartSwipe(DragEndDetails details) {
