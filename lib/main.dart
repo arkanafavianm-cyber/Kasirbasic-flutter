@@ -650,41 +650,7 @@ final maxDaily = dailyTotals.fold<int>(
 
 
 
-GestureDetector(
-  onHorizontalDragEnd: _handleChartSwipe,
-  child: AnimatedSwitcher(
-    duration: const Duration(milliseconds: 400),
-    switchInCurve: Curves.easeOutCubic,
-    switchOutCurve: Curves.easeInCubic,
-    transitionBuilder: (child, animation) {
-      final slide = Tween<Offset>(
-        begin: Offset(
-          _chartSlideDirection.toDouble(),
-          0,
-        ),
-        end: Offset.zero,
-      ).animate(animation);
-
-      return ClipRect(
-        child: SlideTransition(
-          position: slide,
-          child: child,
-        ),
-      );
-    },
-    child: Card(
-      key: ValueKey(_weekOffset),
-
-    child: Padding(
-      padding: const EdgeInsets.all(14),
-      child: SizedBox(
-        height: 175,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: List.generate(7, (index) {
-            final amount = dailyTotals[index];
-
-
+              
 GestureDetector(
   onHorizontalDragEnd: _handleChartSwipe,
   child: AnimatedSwitcher(
@@ -745,9 +711,7 @@ GestureDetector(
                         amount == 0 ? '-' : _compact(amount),
                         style: const TextStyle(fontSize: 9),
                       ),
-
                       const SizedBox(height: 5),
-
                       TweenAnimationBuilder<double>(
                         key: ValueKey(
                           '${day.year}-${day.month}-${day.day}-$amount',
@@ -772,16 +736,12 @@ GestureDetector(
                           );
                         },
                       ),
-
                       const SizedBox(height: 6),
-
                       Text(
                         labels[day.weekday - 1],
                         style: const TextStyle(fontSize: 10),
                       ),
-
                       const SizedBox(height: 3),
-
                       Text(
                         '${day.day.toString().padLeft(2, '0')}/${day.month.toString().padLeft(2, '0')}',
                         style: const TextStyle(
@@ -800,6 +760,7 @@ GestureDetector(
     ),
   ),
 ),
+
 
 
 
