@@ -593,7 +593,38 @@ final maxDaily = dailyTotals.fold<int>(
   (maxValue, value) =>
       value > maxValue ? value : maxValue,
 );
-      
+   
+// DATA PENJUALAN BERDASARKAN KATEGORI
+final Map<String, int> categoryTotals = {};
+
+for (final transaction in last30) {
+  for (final item in transaction.items) {
+    String category = 'Lainnya';
+
+    for (final product in products) {
+      if (product.id == item.productId) {
+        category = product.category.trim().isEmpty
+            ? 'Lainnya'
+            : product.category;
+        break;
+      }
+    }
+
+    categoryTotals[category] =
+        (categoryTotals[category] ?? 0) + item.subtotal;
+  }
+}
+
+final categoryEntries = categoryTotals.entries
+    .where((entry) => entry.value > 0)
+    .toList()
+  ..sort((a, b) => b.value.compareTo(a.value));
+
+final totalCategorySales = categoryEntries.fold<int>(
+  0,
+  (sum, entry) => sum + entry.value,
+);
+   
 
     final labels = [
       'Sen', 'Sel', 'Rab', 'Kam',
