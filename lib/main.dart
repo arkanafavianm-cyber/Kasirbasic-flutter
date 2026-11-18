@@ -1137,11 +1137,13 @@ Column(
               Navigator.pop(
                 dialogContext,
                 Product(
-                  id: DateTime.now().microsecondsSinceEpoch.toString(),
-                  name: nameController.text.trim(),
-                  price: int.parse(priceController.text),
-                  stock: double.parse(stockController.text),
-                  imageBase64: imageBase64,
+  id: DateTime.now().microsecondsSinceEpoch.toString(),
+  name: nameController.text.trim(),
+  price: int.parse(priceController.text),
+  stock: double.parse(stockController.text),
+  imageBase64: imageBase64,
+  category: selectedCategory,
+),
                 ),
               );
             },
@@ -1340,7 +1342,30 @@ Future<void> editProduct(Product product) async {
                       : null;
                 },
               ),
-           
+           DropdownButtonFormField<String>(
+  value: selectedCategory,
+  decoration: const InputDecoration(
+    labelText: 'Kategori Produk',
+    border: OutlineInputBorder(),
+  ),
+  items: [
+    'Umum',
+    'Makanan',
+    'Minuman',
+    'Snack',
+    'Lainnya',
+  ].map((category) {
+    return DropdownMenuItem(
+      value: category,
+      child: Text(category),
+    );
+  }).toList(),
+  onChanged: (value) {
+    if (value != null) {
+      selectedCategory = value;
+    }
+  },
+),
 const SizedBox(height: 12),
 
 
@@ -1367,49 +1392,7 @@ Column(
           foregroundColor: Colors.red,
         ),
       ),
-  ],
-),
-], 
-  
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Batal'),
-        ),
-        FilledButton(
-          onPressed: () {
-            if (!formKey.currentState!.validate()) return;
-            Navigator.pop(
-              dialogContext,
-              product.copyWith(
-                name: nameController.text.trim(),
-                price: int.parse(priceController.text),
-                stock: double.parse(stockController.text),
-                imageBase64: imageBase64,
-                clearImage: imageBase64 == null,
-              ),
-            );
-          },
-          child: const Text('Simpan Perubahan'),
-        ),
-      ],
-    ),
-  );
 
-  nameController.dispose();
-  priceController.dispose();
-  stockController.dispose();
-
-  if (result != null) {
-    setState(() {
-      final index = products.indexWhere((p) => p.id == product.id);
-      if (index != -1) products[index] = result;
-    });
-    await _save();
-  }
 }
   Future<void> _deleteProduct(Product product) async {
     final confirmed = await showDialog<bool>(
