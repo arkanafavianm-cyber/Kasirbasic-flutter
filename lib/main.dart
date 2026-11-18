@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:io';
 import 'dart:convert';
 
@@ -807,6 +808,89 @@ GestureDetector(
 ),
 
 
+
+
+_heading('Penjualan Berdasarkan Kategori'),
+
+Card(
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: categoryEntries.isEmpty
+        ? const Center(
+            child: Text('Belum ada data penjualan kategori.'),
+          )
+        : Row(
+            children: [
+              SizedBox(
+                width: 155,
+                height: 155,
+                child: CustomPaint(
+                  painter: _CategoryPiePainter(
+                    values: categoryEntries
+                        .map((entry) => entry.value)
+                        .toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: categoryEntries
+                      .take(6)
+                      .toList()
+                      .asMap()
+                      .entries
+                      .map((item) {
+                    final entry = item.value;
+                    final color = _categoryChartColors[
+                        item.key % _categoryChartColors.length];
+
+                    final percent = totalCategorySales == 0
+                        ? 0.0
+                        : entry.value /
+                            totalCategorySales *
+                            100;
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 5,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 7),
+                          Expanded(
+                            child: Text(
+                              entry.key,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                          ),
+                          Text(
+                            '${percent.toStringAsFixed(1)}%',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+  ),
+),
 
 
                  const SizedBox(height: 20),
@@ -2483,5 +2567,71 @@ class _StockManagementPageState
               ),
             ),
     );
+  }
+}
+const List<Color> _categoryChartColors = [
+  Color(0xFF19765B),
+  Color(0xFF75B69A),
+  Color(0xFFE0A34A),
+  Color(0xFF6689C7),
+  Color(0xFF9B79C5),
+  Color(0xFFE16B62),
+];
+
+class _CategoryPiePainter extends CustomPainter {
+  final List<int> values;
+
+  _CategoryPiePainter({required this.values});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final total = values.fold<int>(
+      0,
+      (sum, value) => sum + value,
+    );
+
+    if (total <= 0) return;
+
+    final center = Offset(
+      size.width / 2,
+      size.height / 2,
+    );
+
+    final radius = math.min(
+      size.width,
+      size.height,
+    ) / 2;
+
+    double startAngle = -math.pi / 2;
+
+    for (int i = 0; i < values.length; i++) {
+      final sweepAngle =
+          (values[i] / total) * 2 * math.pi;
+
+      final paint = Paint()
+        ..color = _categoryChartColors[
+            i % _categoryChartColors.length]
+        ..style = PaintingStyle.fill;
+
+      canvas.drawArc(
+        Rect.fromCircle(
+          center: center,
+          radius: radius,
+        ),
+        startAngle,
+        sweepAngle,
+        true,
+        paint,
+      );
+
+      startAngle += sweepAngle;
+    }
+  }
+
+  @override
+  bool shouldRepaint(
+    covariant _CategoryPiePainter oldDelegate,
+  ) {
+    return oldDelegate.values != values;
   }
 }
