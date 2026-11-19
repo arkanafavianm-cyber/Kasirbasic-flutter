@@ -32,6 +32,11 @@ jobs:
             /tmp/kasir_scaffold
           cp -R /tmp/kasir_scaffold/android ./android
 
+      - name: Check Android Gradle configuration
+        run: |
+          echo "=== SETTINGS.GRADLE.KTS ==="
+          cat android/settings.gradle.kts
+
       - name: Configure permanent release signing
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
