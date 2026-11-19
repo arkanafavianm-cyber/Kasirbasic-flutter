@@ -1164,7 +1164,9 @@ Column(
   }
 
   Future<void> _editProduct(Product product) async {
-    final formKey = GlobalKey<FormState>();
+  selectedCategory = product.category;
+
+  final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: product.name);
     final priceController =
         TextEditingController(text: product.price.toString());
@@ -1259,6 +1261,7 @@ Navigator.pop(
     stock: double.parse(stockController.text),
     imageBase64: imageBase64,
     clearImage: imageBase64 == null,
+    category: selectedCategory,
   ),
 );
 
