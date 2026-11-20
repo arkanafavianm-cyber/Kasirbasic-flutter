@@ -1003,6 +1003,7 @@ class _ProductsPageState extends State<ProductsPage> {
   List<Product> products = [];
   bool loading = true;
   static bool gridView = false;
+  String? selectedCategory;
 
   @override
   void initState() {
@@ -1738,15 +1739,23 @@ final paid = await showDialog<int>(
             child: const Text('Batal'),
           ),
           FilledButton(
-            onPressed: () {
-              if (!formKey.currentState!.validate()) return;
-              Navigator.pop(
-                dialogContext,
-                int.parse(paidController.text),
-              );
-            },
-            child: const Text('Selesaikan'),
-          ),
+  onPressed: () {
+    if (!formKey.currentState!.validate()) return;
+
+    Navigator.pop(
+      dialogContext,
+      Product(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        name: nameController.text.trim(),
+        price: int.parse(priceController.text),
+        stock: double.parse(stockController.text),
+        imageBase64: imageBase64,
+        category: selectedCategory,
+      ),
+    );
+  },
+  child: const Text('Simpan'),
+),
         ],
       );
     },
