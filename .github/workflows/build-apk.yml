@@ -36,7 +36,11 @@ jobs:
         run: |
           echo "=== SETTINGS.GRADLE.KTS ==="
           cat android/settings.gradle.kts
+             echo "=== GRADLE WRAPPER ==="
+           cat android/gradle/wrapper/gradle-wrapper.properties
 
+             echo "=== ANDROID BUILD ==="
+           cat android/build.gradle.kts
       - name: Configure permanent release signing
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
