@@ -1133,23 +1133,23 @@ Column(
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Batal')),
           FilledButton(
-            onPressed: () {
-              if (!formKey.currentState!.validate()) return;
-              Navigator.pop(
-                dialogContext,
-                Product(
-  id: DateTime.now().microsecondsSinceEpoch.toString(),
-  name: nameController.text.trim(),
-  price: int.parse(priceController.text),
-  stock: double.parse(stockController.text),
-  imageBase64: imageBase64,
-  category: selectedCategory,
+  onPressed: () {
+    if (!formKey.currentState!.validate()) return;
+
+    Navigator.pop(
+      dialogContext,
+      Product(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        name: nameController.text.trim(),
+        price: int.parse(priceController.text),
+        stock: double.parse(stockController.text),
+        imageBase64: imageBase64,
+        category: selectedCategory ?? 'Lainnya',
+      ),
+    );
+  },
+  child: const Text('Simpan'),
 ),
-                ),
-              );
-            },
-            child: const Text('Simpan'),
-          ),
         ],
       ),
     );
@@ -1742,17 +1742,7 @@ final paid = await showDialog<int>(
   onPressed: () {
     if (!formKey.currentState!.validate()) return;
 
-    Navigator.pop(
-      dialogContext,
-      Product(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        name: nameController.text.trim(),
-        price: int.parse(priceController.text),
-        stock: double.parse(stockController.text),
-        imageBase64: imageBase64,
-        category: selectedCategory,
-      ),
-    );
+    Navigator.pop(dialogContext, amount);
   },
   child: const Text('Simpan'),
 ),
