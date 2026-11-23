@@ -1285,15 +1285,19 @@ Navigator.pop(
       await _save();
     }
   }
-Future<void> editProduct(Product product) async {
+
+Future<void> _editProduct(Product product) async {
+  String selectedCategory = product.category;
+  String? imageBase64 = product.imageBase64;
+
   final formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController(text: product.name);
+
+  final nameController =
+      TextEditingController(text: product.name);
   final priceController =
       TextEditingController(text: product.price.toString());
   final stockController =
       TextEditingController(text: product.stock.toString());
-
-  String? imageBase64 = product.imageBase64;
 
   final result = await showDialog<Product>(
     context: context,
@@ -1317,6 +1321,7 @@ Future<void> editProduct(Product product) async {
                         : null,
               ),
               const SizedBox(height: 12),
+
               TextFormField(
                 controller: priceController,
                 keyboardType: TextInputType.number,
@@ -1332,6 +1337,7 @@ Future<void> editProduct(Product product) async {
                 },
               ),
               const SizedBox(height: 12),
+
               TextFormField(
                 controller: stockController,
                 keyboardType: TextInputType.number,
@@ -1346,58 +1352,110 @@ Future<void> editProduct(Product product) async {
                       : null;
                 },
               ),
-           DropdownButtonFormField<String>(
-  value: selectedCategory,
-  decoration: const InputDecoration(
-    labelText: 'Kategori Produk',
-    border: OutlineInputBorder(),
-  ),
-  items: [
-    'Umum',
-    'Makanan',
-    'Minuman',
-    'Snack',
-    'Lainnya',
-  ].map((category) {
-    return DropdownMenuItem(
-      value: category,
-      child: Text(category),
-    );
-  }).toList(),
-  onChanged: (value) {
-    if (value != null) {
-      selectedCategory = value;
-    }
-  },
-),
-const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                decoration: const InputDecoration(
+                  labelText: 'Kategori Produk',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  'Umum',
+                  'Makanan',
+                  'Minuman',
+                  'Snack',
+                  'Lainnya',
+                ].map((category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    selectedCategory = value;
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
 
-Column(
-  children: [
-    OutlinedButton.icon(
-      onPressed: () async {
-        final image = await _pickProductImage();
-        if (image != null) {
-          imageBase64 = image;
-        }
-      },
-      icon: const Icon(Icons.image),
-      label: const Text('Pilih Gambar dari Galeri'),
-    ),
-    if (imageBase64 != null && imageBase64!.isNotEmpty)
-      TextButton.icon(
-        onPressed: () {
-          imageBase64 = null;
-        },
-        icon: const Icon(Icons.delete_outline),
-        label: const Text('Hapus Gambar'),
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.red,
+              Column(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final image = await _pickProductImage();
+                      if (image != null) {
+                        imageBase64 = image;
+                      }
+                    },
+                    icon: const Icon(Icons.image),
+                    label: const Text('Pilih Gambar dari Galeri'),
+                  ),
+                  if (imageBase64 != null &&
+                      imageBase64!.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () {
+                        imageBase64 = null;
+                      },
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text('Hapus Gambar'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Batal'),
+        ),
+        FilledButton(
+          onPressed: () {
+            if (!formKey.currentState!.validate()) return;
 
+            Navigator.pop(
+              dialogContext,
+              Product(
+                id: product.id,
+                name: nameController.text.trim(),
+                price: int.parse(priceController.text),
+                stock: double.parse(stockController.text),
+                imageBase64: imageBase64,
+                category: selectedCategory,
+              ),
+            );
+          },
+          child: const Text('Simpan'),
+        ),
+      ],
+    ),
+  );
+
+  nameController.dispose();
+  priceController.dispose();
+  stockController.dispose();
+
+  if (result != null && mounted) {
+    setState(() {
+      final index = products.indexWhere(
+        (p) => p.id == product.id,
+      );
+
+      if (index != -1) {
+        products[index] = result;
+      }
+    });
+
+    await _save();
+  }
 }
+
   Future<void> _deleteProduct(Product product) async {
     final confirmed = await showDialog<bool>(
       context: context,
