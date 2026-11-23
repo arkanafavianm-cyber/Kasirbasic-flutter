@@ -1164,127 +1164,7 @@ Column(
     }
   }
 
-  Future<void> _editProduct(Product product) async {
-  selectedCategory = product.category;
-
-  final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController(text: product.name);
-    final priceController =
-        TextEditingController(text: product.price.toString());
-    final stockController =
-        TextEditingController(text: product.stock.toString());
-    
-    String? imageBase64 = product.imageBase64;
-    
-
-    final result = await showDialog<Product>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit Produk'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama produk',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Nama wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Harga jual (Rp)',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) {
-                    final n = int.tryParse(v ?? '');
-                    return n == null || n <= 0
-                        ? 'Masukkan harga yang valid'
-                        : null;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: stockController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Stok',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) {
-                    final n = double.tryParse(v ?? '');
-                    return n == null || n < 0
-                        ? 'Stok harus 0 atau lebih'
-                        : null;
-                  },
-                ),
-            
-const SizedBox(height: 12),
-
-OutlinedButton.icon(
-  onPressed: () async {
-    final image = await _pickProductImage();
-    if (image != null) {
-      imageBase64 = image;
-    }
-  },
-  icon: const Icon(Icons.image),
-  label: const Text('Pilih Gambar dari Galeri'),
-),
-  ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (!formKey.currentState!.validate()) return;
-              
-                
-Navigator.pop(
-  dialogContext,
-  product.copyWith(
-    name: nameController.text.trim(),
-    price: int.parse(priceController.text),
-    stock: double.parse(stockController.text),
-    imageBase64: imageBase64,
-    clearImage: imageBase64 == null,
-    category: selectedCategory,
-  ),
-);
-
-            },
-            child: const Text('Simpan Perubahan'),
-          ),
-        ],
-      ),
-    );
-
-    nameController.dispose();
-    priceController.dispose();
-    stockController.dispose();
-
-    if (result != null) {
-      setState(() {
-        final index = products.indexWhere((p) => p.id == product.id);
-        if (index != -1) products[index] = result;
-      });
-      await _save();
-    }
-  }
+  
 
 Future<void> _editProduct(Product product) async {
   String selectedCategory = product.category;
@@ -1571,7 +1451,7 @@ Future<void> _editProduct(Product product) async {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
-                    onPressed: () => editProduct(product),
+                    onPressed: () => _editProduct(product),
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
@@ -1628,7 +1508,7 @@ leading: product.imageBase64 != null &&
     IconButton(
       icon: const Icon(Icons.edit_outlined),
       tooltip: 'Edit produk',
-      onPressed: () => editProduct(product),
+      onPressed: () => _editProduct(product),
     ),
     IconButton(
       icon: const Icon(Icons.delete_outline),
