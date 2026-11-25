@@ -514,23 +514,65 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     loading = false;
   });
   }
+DateTime _firstRecordedDate() {
+  final dates = <DateTime>[];
 
+  for (final transaction in transactions) {
+    final d = transaction.date;
+    dates.add(DateTime(d.year, d.month, d.day));
+  }
+
+  for (final product in products) {
+    final micros = int.tryParse(product.id);
+
+    if (micros != null) {
+      final d = DateTime.fromMicrosecondsSinceEpoch(micros);
+      dates.add(DateTime(d.year, d.month, d.day));
+    }
+  }
+
+  if (dates.isEmpty) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  dates.sort((a, b) => a.compareTo(b));
+  return dates.first;
+}
+  int _maxWeekOffset() {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+
+  final currentStart = today.subtract(
+    const Duration(days: 6),
+  );
+
+  final firstDate = _firstRecordedDate();
+
+  final days = currentStart.difference(firstDate).inDays;
+
+  if (days <= 0) return 0;
+
+  return (days + 6) ~/ 7;
+  }
 void _handleChartSwipe(DragEndDetails details) {
   final velocity = details.primaryVelocity ?? 0;
+  final maxOffset = _maxWeekOffset();
 
-  if (velocity < -100) {
+  if (velocity < -100 &&
+      _weekOffset < maxOffset) {
     setState(() {
       _chartSlideDirection = 1;
       _weekOffset++;
     });
-  } else if (velocity > 100 && _weekOffset > 0) {
+  } else if (velocity > 100 &&
+      _weekOffset > 0) {
     setState(() {
       _chartSlideDirection = -1;
       _weekOffset--;
     });
   }
 }
-
   
   
   @override
