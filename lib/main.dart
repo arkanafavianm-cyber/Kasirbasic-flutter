@@ -555,24 +555,30 @@ DateTime _firstRecordedDate() {
 
   return (days + 6) ~/ 7;
   }
+
 void _handleChartSwipe(DragEndDetails details) {
   final velocity = details.primaryVelocity ?? 0;
   final maxOffset = _maxWeekOffset();
 
-  if (velocity < -100 &&
+  // Geser ke kanan: menuju minggu yang lebih lama
+  if (velocity > 100 &&
       _weekOffset < maxOffset) {
     setState(() {
-      _chartSlideDirection = 1;
+      _chartSlideDirection = -1;
       _weekOffset++;
     });
-  } else if (velocity > 100 &&
+  }
+
+  // Geser ke kiri: kembali ke minggu yang lebih baru
+  else if (velocity < -100 &&
       _weekOffset > 0) {
     setState(() {
-      _chartSlideDirection = -1;
+      _chartSlideDirection = 1;
       _weekOffset--;
     });
   }
 }
+
   
   
   @override
