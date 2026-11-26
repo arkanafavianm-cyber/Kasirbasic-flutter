@@ -747,8 +747,22 @@ final totalCategorySales = categoryEntries.fold<int>(
               
 GestureDetector(
   onHorizontalDragEnd: _handleChartSwipe,
+  child: ClipRect(
   child: AnimatedSwitcher(
     duration: const Duration(milliseconds: 400),
+    layoutBuilder: (currentChild, previousChildren) {
+  return ClipRect(
+    child: Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.hardEdge,
+      children: [
+        ...previousChildren,
+        if (currentChild != null)
+          currentChild,
+      ],
+    ),
+  );
+},
     switchInCurve: Curves.easeOutCubic,
     switchOutCurve: Curves.easeInCubic,
     transitionBuilder: (child, animation) {
