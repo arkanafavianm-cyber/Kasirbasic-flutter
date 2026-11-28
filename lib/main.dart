@@ -745,47 +745,11 @@ final totalCategorySales = categoryEntries.fold<int>(
 
 
               
+
 GestureDetector(
   onHorizontalDragEnd: _handleChartSwipe,
-  child: ClipRect(
-  child: AnimatedSwitcher(
-    duration: const Duration(milliseconds: 400),
-    layoutBuilder: (currentChild, previousChildren) {
-  return ClipRect(
-    child: Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.hardEdge,
-      children: [
-        ...previousChildren,
-        if (currentChild != null)
-          currentChild,
-      ],
-    ),
-  );
-},
-    switchInCurve: Curves.easeOutCubic,
-    switchOutCurve: Curves.easeInCubic,
-    transitionBuilder: (child, animation) {
-      final slide = Tween<Offset>(
-        begin: Offset(
-          _chartSlideDirection.toDouble(),
-          0,
-        ),
-        end: Offset.zero,
-      ).animate(
-        CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        ),
-      );
+      
 
-      return ClipRect(
-        child: SlideTransition(
-          position: slide,
-          child: child,
-        ),
-      );
-    },
     child: Card(
       key: ValueKey<int>(_weekOffset),
       child: Padding(
